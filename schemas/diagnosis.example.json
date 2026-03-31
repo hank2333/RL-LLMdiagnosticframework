@@ -1,0 +1,15 @@
+{
+  "run_id": "run_0001",
+  "summary_ref": "training_summary.example.json",
+  "diagnosis": {
+    "primary_issue": "Reward plateau near convergence threshold.",
+    "possible_causes": [
+      "Learning rate may be too low for late-stage improvement.",
+      "Exploration may have decayed too aggressively."
+    ],
+    "recommended_actions": [
+      "Increase learning rate by 10%.",
+      "Adjust exploration schedule."
+    ]
+  }
+}

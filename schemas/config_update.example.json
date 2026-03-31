@@ -1,0 +1,10 @@
+{
+  "run_id": "run_0001",
+  "proposed_by": "llm",
+  "changes": {
+    "learning_rate": 0.00033,
+    "entropy_coef": 0.012
+  },
+  "justification": "Increase optimization progress while preserving exploration.",
+  "guard_status": "pending"
+}

@@ -1,0 +1,15 @@
+{
+  "project_id": "default",
+  "recent_runs": [
+    {
+      "run_id": "run_0001",
+      "outcome": "partial_success",
+      "key_takeaways": [
+        "Higher reward variance appeared after exploration decay."
+      ]
+    }
+  ],
+  "stable_patterns": [
+    "Small learning-rate adjustments are safer than large entropy changes."
+  ]
+}
