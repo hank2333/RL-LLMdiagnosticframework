@@ -1,0 +1,67 @@
+{
+  "record": {
+    "round_id": 1,
+    "config": {
+      "learning_rate": 0.0003,
+      "ent_coef": 0.01,
+      "clip_range": 0.2
+    },
+    "summary": {
+      "avg_return": 5.4733,
+      "std_return": 0.7664,
+      "success_rate": 0.6667,
+      "avg_episode_length": 40,
+      "reward_trend": "improving",
+      "entropy_trend": "flat",
+      "policy_stability": "stable",
+      "action_distribution": {
+        "monitor": 0.225,
+        "scan": 0.1167,
+        "isolate_host": 0.2583,
+        "patch": 0.15,
+        "deploy_decoy": 0.1417,
+        "do_nothing": 0.1083
+      },
+      "dominant_action": "isolate_host",
+      "action_collapse": false,
+      "alerts": []
+    },
+    "diagnosis": {
+      "fault_type": "mixed_or_uncertain",
+      "observed_symptoms": [
+        "No dominant failure pattern was detected."
+      ],
+      "reasoning": "Signals are mixed, so the safest recommendation is to keep the current settings.",
+      "proposed_adjustments": {
+        "learning_rate": "keep",
+        "ent_coef": "keep",
+        "clip_range": "keep"
+      },
+      "confidence": 0.5,
+      "risk_level": "low",
+      "rollback_trigger": "Rollback is not needed because no parameter changes were proposed."
+    },
+    "outcome": "accepted_neutral"
+  },
+  "raw_metrics": {
+    "train_steps": 512,
+    "eval_episodes": 3,
+    "seed": 7,
+    "model_path": "artifacts\\runs\\verify_single\\round_01\\ppo_model"
+  },
+  "diagnosis": {
+    "fault_type": "mixed_or_uncertain",
+    "observed_symptoms": [
+      "No dominant failure pattern was detected."
+    ],
+    "reasoning": "Signals are mixed, so the safest recommendation is to keep the current settings.",
+    "proposed_adjustments": {
+      "learning_rate": "keep",
+      "ent_coef": "keep",
+      "clip_range": "keep"
+    },
+    "confidence": 0.5,
+    "risk_level": "low",
+    "rollback_trigger": "Rollback is not needed because no parameter changes were proposed."
+  }
+}

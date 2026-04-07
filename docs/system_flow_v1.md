@@ -2,9 +2,10 @@
 
 ## High-Level Flow
 
-1. `train_runner.py` executes a training run and emits raw artifacts.
-2. `summarize_metrics.py` converts raw outputs into a compact summary.
-3. `call_llm.py` sends the summary and context to an LLM for diagnosis.
-4. `constraint_guard.py` validates any proposed config changes.
-5. `memory_manager.py` stores important history for future iterations.
-6. `loop_controller.py` coordinates repeated execution until stopping criteria are met.
+1. train_runner.py 运行一次训练
+2. 输出 raw metrics / log
+3. summarize_metrics.py 生成 training summary
+4. memory_manager.py 提供最近几轮历史
+5. call_llm.py 读取 summary + history，生成 diagnosis
+6. constraint_guard.py 检查 proposed changes
+7. loop_controller.py 决定接受或回滚，并进入下一轮

@@ -1,0 +1,39 @@
+{
+  "record": {
+    "round_id": 1,
+    "config": {
+      "learning_rate": 0.0003,
+      "ent_coef": 0.01,
+      "clip_range": 0.2
+    },
+    "summary": {
+      "avg_return": 6.3467,
+      "std_return": 2.0514,
+      "success_rate": 0.6667,
+      "avg_episode_length": 32.3333,
+      "reward_trend": "improving",
+      "entropy_trend": "flat",
+      "policy_stability": "stable",
+      "action_distribution": {
+        "monitor": 0.299,
+        "scan": 0.1856,
+        "isolate_host": 0.1031,
+        "patch": 0.2474,
+        "deploy_decoy": 0.1237,
+        "do_nothing": 0.0412
+      },
+      "dominant_action": "monitor",
+      "action_collapse": false,
+      "alerts": []
+    },
+    "diagnosis": {},
+    "outcome": "accepted_neutral"
+  },
+  "raw_metrics": {
+    "train_steps": 512,
+    "eval_episodes": 3,
+    "seed": 11,
+    "model_path": "artifacts\\runs\\verify_fixed\\round_01\\ppo_model"
+  },
+  "diagnosis": {}
+}

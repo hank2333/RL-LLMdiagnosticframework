@@ -1,0 +1,14 @@
+experiment_group: history_aware
+diagnosis_mode: history_aware
+rounds: 3
+train_steps: 5000
+eval_episodes: 10
+seed: 0
+history_path: artifacts/history.json
+artifact_dir: artifacts/runs/history_aware
+ollama_model: qwen3.5:4b
+ollama_base_url: http://127.0.0.1:11434
+ppo:
+  learning_rate: 0.0003
+  ent_coef: 0.01
+  clip_range: 0.2

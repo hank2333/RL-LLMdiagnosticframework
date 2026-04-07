@@ -1,6 +1,1 @@
-"""Coordinate the training, diagnosis, and update loop."""
-
-
-def run_loop() -> None:
-    """Execute the outer control loop."""
-    raise NotImplementedError("Implement loop orchestration.")
+from src.core.loop import run_closed_loop, run_fixed_baseline  # Re-export the maintained loop entrypoints for compatibility.

@@ -1,10 +1,1 @@
-"""Training entrypoint for the RL diagnostic framework."""
-
-
-def main() -> None:
-    """Run a training job."""
-    raise NotImplementedError("Implement training execution.")
-
-
-if __name__ == "__main__":
-    main()
+from src.core.train_runner import PPOConfig, TrainingArtifacts, run_training  # Re-export the maintained training interfaces for compatibility.

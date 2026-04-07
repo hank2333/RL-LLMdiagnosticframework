@@ -1,6 +1,1 @@
-"""Validate proposed updates before they are applied."""
-
-
-def validate_config_update(update: dict) -> dict:
-    """Check whether a config update satisfies guardrail rules."""
-    raise NotImplementedError("Implement constraint validation.")
+from src.core.guardrail import validate_adjustments  # Re-export the maintained guardrail function for compatibility.

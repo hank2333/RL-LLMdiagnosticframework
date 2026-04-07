@@ -1,0 +1,78 @@
+{
+  "records": [
+    {
+      "round_id": 1,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.01,
+        "clip_range": 0.2
+      },
+      "summary": {
+        "avg_return": 6.3467,
+        "std_return": 2.0514,
+        "success_rate": 0.6667,
+        "avg_episode_length": 32.3333,
+        "reward_trend": "improving",
+        "entropy_trend": "flat",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.299,
+          "scan": 0.1856,
+          "isolate_host": 0.1031,
+          "patch": 0.2474,
+          "deploy_decoy": 0.1237,
+          "do_nothing": 0.0412
+        },
+        "dominant_action": "monitor",
+        "action_collapse": false,
+        "alerts": []
+      },
+      "diagnosis": {},
+      "outcome": "accepted_neutral"
+    },
+    {
+      "round_id": 1,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.01,
+        "clip_range": 0.2
+      },
+      "summary": {
+        "avg_return": 6.7133,
+        "std_return": 0.6009,
+        "success_rate": 1.0,
+        "avg_episode_length": 40,
+        "reward_trend": "declining",
+        "entropy_trend": "flat",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.2167,
+          "scan": 0.15,
+          "isolate_host": 0.2667,
+          "patch": 0.2167,
+          "deploy_decoy": 0.1,
+          "do_nothing": 0.05
+        },
+        "dominant_action": "isolate_host",
+        "action_collapse": false,
+        "alerts": []
+      },
+      "diagnosis": {
+        "fault_type": "mixed_or_uncertain",
+        "observed_symptoms": [
+          "No dominant failure pattern was detected."
+        ],
+        "reasoning": "Signals are mixed, so the safest recommendation is to keep the current settings.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "keep",
+          "clip_range": "keep"
+        },
+        "confidence": 0.5,
+        "risk_level": "low",
+        "rollback_trigger": "Rollback is not needed because no parameter changes were proposed."
+      },
+      "outcome": "accepted_neutral"
+    }
+  ]
+}

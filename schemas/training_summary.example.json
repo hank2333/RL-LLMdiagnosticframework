@@ -1,16 +1,23 @@
 {
-  "run_id": "run_0001",
-  "status": "completed",
-  "environment": "CartPole-v1",
-  "algorithm": "ppo",
-  "timesteps": 100000,
-  "metrics": {
-    "episode_reward_mean": 185.4,
-    "episode_reward_std": 12.8,
-    "episode_length_mean": 191.2,
-    "loss": 0.023
+  "run_id": "",
+  "config": {},
+  "performance": {
+    "avg_return": 0.0,
+    "std_return": 0.0,
+    "success_rate": 0.0,
+    "avg_episode_length": 0.0
   },
-  "notes": [
-    "Reward trend improved over the final third of training."
-  ]
+  "dynamics": {
+    "return_trend": "",
+    "entropy_trend": "",
+    "policy_loss_trend": "",
+    "value_loss_trend": ""
+  },
+  "behavior": {
+    "action_distribution": {},
+    "dominant_action": "",
+    "action_collapse": false
+  },
+  "alerts": [],
+  "notes": ""
 }
