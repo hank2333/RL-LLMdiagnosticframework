@@ -1,0 +1,102 @@
+{
+  "records": [
+    {
+      "round_id": 1,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.01,
+        "clip_range": 0.2
+      },
+      "summary": {
+        "avg_return": 10.249,
+        "std_return": 3.1433,
+        "success_rate": 1.0,
+        "avg_episode_length": 40,
+        "reward_trend": "improving",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.0575,
+          "scan": 0.0925,
+          "isolate_host": 0.03,
+          "patch": 0.8075,
+          "deploy_decoy": 0.01,
+          "do_nothing": 0.0025
+        },
+        "dominant_action": "patch",
+        "action_collapse": true,
+        "alerts": [
+          "Dominant action exceeds 50% of selections.",
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {},
+      "outcome": "accepted_neutral"
+    },
+    {
+      "round_id": 2,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.01,
+        "clip_range": 0.2
+      },
+      "summary": {
+        "avg_return": 11.436,
+        "std_return": 0.673,
+        "success_rate": 1.0,
+        "avg_episode_length": 40,
+        "reward_trend": "flat",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.0975,
+          "scan": 0.2525,
+          "isolate_host": 0.005,
+          "patch": 0.63,
+          "deploy_decoy": 0.0125,
+          "do_nothing": 0.0025
+        },
+        "dominant_action": "patch",
+        "action_collapse": true,
+        "alerts": [
+          "Dominant action exceeds 50% of selections."
+        ]
+      },
+      "diagnosis": {},
+      "outcome": "accepted_improved"
+    },
+    {
+      "round_id": 3,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.01,
+        "clip_range": 0.2
+      },
+      "summary": {
+        "avg_return": 10.36,
+        "std_return": 2.1016,
+        "success_rate": 1.0,
+        "avg_episode_length": 40,
+        "reward_trend": "flat",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.085,
+          "scan": 0.11,
+          "isolate_host": 0.0,
+          "patch": 0.78,
+          "deploy_decoy": 0.0125,
+          "do_nothing": 0.0125
+        },
+        "dominant_action": "patch",
+        "action_collapse": true,
+        "alerts": [
+          "Dominant action exceeds 50% of selections.",
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {},
+      "outcome": "accepted_worsened"
+    }
+  ]
+}

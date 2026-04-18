@@ -6,7 +6,7 @@ from src.core.train_runner import PARAM_RANGES  # Import the project-approved pa
 ALLOWED_KEYS = set(PARAM_RANGES.keys())  # Restrict updates to the approved PPO parameter names.
 
 
-def validate_adjustments(current_config: dict[str, float], proposed_config: dict[str, float], risk_level: str) -> tuple[dict[str, float], list[str], bool]:  # Validate, clip, and optionally reject a proposed parameter update.
+def validate_adjustments(current_config: dict[str, float | int], proposed_config: dict[str, float | int], risk_level: str) -> tuple[dict[str, float | int], list[str], bool]:  # Validate, clip, and optionally reject a proposed parameter update.
     accepted = current_config.copy()  # Start from the current config so rejected changes preserve the status quo.
     alerts: list[str] = []  # Start with an empty list of guardrail alerts.
     extra_keys = [key for key in proposed_config if key not in ALLOWED_KEYS]  # Collect unsupported parameter names.
@@ -21,7 +21,8 @@ def validate_adjustments(current_config: dict[str, float], proposed_config: dict
     for key, value in proposed_config.items():  # Validate each proposed parameter value.
         lower, upper = PARAM_RANGES[key]  # Read the allowed lower and upper bounds.
         clipped = min(upper, max(lower, value))  # Clip the proposed value into the allowed range.
-        if clipped != value:  # Detect when clipping was needed.
+        normalized = int(round(clipped)) if key == "n_steps" else round(float(clipped), 5)  # Preserve integer type for `n_steps` and keep float values tidy.
+        if normalized != value:  # Detect when clipping or normalization was needed.
             alerts.append(f"Clipped {key} into the allowed range [{lower}, {upper}].")  # Record the clipping event.
-        accepted[key] = clipped  # Store the validated or clipped value.
+        accepted[key] = normalized  # Store the validated or clipped value.
     return accepted, alerts, True  # Accept the validated proposal.

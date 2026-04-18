@@ -1,0 +1,77 @@
+{
+  "record": {
+    "round_id": 3,
+    "config": {
+      "learning_rate": 0.0003,
+      "ent_coef": 0.015,
+      "clip_range": 0.2,
+      "n_steps": 160,
+      "gamma": 0.98
+    },
+    "summary": {
+      "avg_return": 0.332,
+      "std_return": 0.8431,
+      "success_rate": 0.0,
+      "avg_episode_length": 12.7,
+      "reward_trend": "declining",
+      "entropy_trend": "falling",
+      "policy_stability": "unstable",
+      "action_distribution": {
+        "monitor": 0.4252,
+        "scan": 0.1024,
+        "isolate_host": 0.1181,
+        "patch": 0.189,
+        "deploy_decoy": 0.1496,
+        "do_nothing": 0.0157
+      },
+      "dominant_action": "monitor",
+      "action_collapse": false,
+      "alerts": [
+        "Entropy declined materially during training.",
+        "Policy probabilities changed sharply across the episode phases.",
+        "Too many parameter changes proposed: 3 > 2."
+      ]
+    },
+    "diagnosis": {
+      "fault_type": "training_instability",
+      "observed_symptoms": [
+        "Policy stability is unstable or returns are noisy."
+      ],
+      "reasoning": "The policy appears to change too sharply relative to the small task.",
+      "proposed_adjustments": {
+        "learning_rate": "decrease_small",
+        "ent_coef": "keep",
+        "clip_range": "decrease_small",
+        "n_steps": "increase_small",
+        "gamma": "keep"
+      },
+      "confidence": 0.72,
+      "risk_level": "medium",
+      "rollback_trigger": "Rollback if success rate drops after the change."
+    },
+    "outcome": "rejected_by_guard"
+  },
+  "raw_metrics": {
+    "train_steps": 5000,
+    "eval_episodes": 10,
+    "seed": 4,
+    "model_path": "artifacts\\runs\\iter8_confirm_history_seed2\\round_03\\ppo_model"
+  },
+  "diagnosis": {
+    "fault_type": "training_instability",
+    "observed_symptoms": [
+      "Policy stability is unstable or returns are noisy."
+    ],
+    "reasoning": "The policy appears to change too sharply relative to the small task.",
+    "proposed_adjustments": {
+      "learning_rate": "decrease_small",
+      "ent_coef": "keep",
+      "clip_range": "decrease_small",
+      "n_steps": "increase_small",
+      "gamma": "keep"
+    },
+    "confidence": 0.72,
+    "risk_level": "medium",
+    "rollback_trigger": "Rollback if success rate drops after the change."
+  }
+}

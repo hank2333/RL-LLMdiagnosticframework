@@ -1,0 +1,79 @@
+{
+  "record": {
+    "round_id": 2,
+    "config": {
+      "learning_rate": 0.0003,
+      "ent_coef": 0.015,
+      "clip_range": 0.2,
+      "n_steps": 160,
+      "gamma": 0.98
+    },
+    "summary": {
+      "avg_return": 1.985,
+      "std_return": 0.575,
+      "success_rate": 0.0,
+      "avg_episode_length": 14,
+      "reward_trend": "declining",
+      "entropy_trend": "falling",
+      "policy_stability": "stable",
+      "action_distribution": {
+        "monitor": 0.2143,
+        "scan": 0.1607,
+        "isolate_host": 0.0357,
+        "patch": 0.1071,
+        "deploy_decoy": 0.4464,
+        "do_nothing": 0.0357
+      },
+      "dominant_action": "deploy_decoy",
+      "action_collapse": false,
+      "alerts": [
+        "Entropy declined materially during training."
+      ]
+    },
+    "diagnosis": {
+      "fault_type": "exploration_collapse",
+      "observed_symptoms": [
+        "No dominant failure pattern was detected.",
+        "Success rate is very low while entropy is not recovering.",
+        "Recent history shows ineffective entropy-only adjustment."
+      ],
+      "reasoning": "Current results are too weak to justify a no-op, so the diagnosis shifts toward insufficient exploration. Recent history shows that a prior entropy increase did not rescue performance, so the strategy now changes rollout structure instead of repeating the same step.",
+      "proposed_adjustments": {
+        "learning_rate": "keep",
+        "ent_coef": "keep",
+        "clip_range": "keep",
+        "n_steps": "increase_small",
+        "gamma": "decrease_small"
+      },
+      "confidence": 0.82,
+      "risk_level": "medium",
+      "rollback_trigger": "Rollback if success rate and average return both fail to improve in the next round."
+    },
+    "outcome": "accepted_improved"
+  },
+  "raw_metrics": {
+    "train_steps": 768,
+    "eval_episodes": 4,
+    "seed": 2,
+    "model_path": "artifacts\\runs\\test_history_v2\\round_02\\ppo_model"
+  },
+  "diagnosis": {
+    "fault_type": "exploration_collapse",
+    "observed_symptoms": [
+      "No dominant failure pattern was detected.",
+      "Success rate is very low while entropy is not recovering.",
+      "Recent history shows ineffective entropy-only adjustment."
+    ],
+    "reasoning": "Current results are too weak to justify a no-op, so the diagnosis shifts toward insufficient exploration. Recent history shows that a prior entropy increase did not rescue performance, so the strategy now changes rollout structure instead of repeating the same step.",
+    "proposed_adjustments": {
+      "learning_rate": "keep",
+      "ent_coef": "keep",
+      "clip_range": "keep",
+      "n_steps": "increase_small",
+      "gamma": "decrease_small"
+    },
+    "confidence": 0.82,
+    "risk_level": "medium",
+    "rollback_trigger": "Rollback if success rate and average return both fail to improve in the next round."
+  }
+}

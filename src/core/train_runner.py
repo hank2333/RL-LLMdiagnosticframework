@@ -10,16 +10,18 @@ from stable_baselines3.common.monitor import Monitor  # Wrap environments to sta
 from src.envs.mini_defense_env import ACTION_NAMES, MiniDefenseEnv  # Import the custom environment and action labels.
 
 
-PARAM_RANGES = {"learning_rate": (1e-5, 1e-3), "ent_coef": (0.0, 0.05), "clip_range": (0.1, 0.3)}  # Constrain the only tunable PPO parameters.
+PARAM_RANGES = {"learning_rate": (1e-5, 1e-3), "ent_coef": (0.0, 0.05), "clip_range": (0.1, 0.3), "n_steps": (64, 256), "gamma": (0.95, 0.999)}  # Constrain the tunable PPO parameters.
 
 
 @dataclass  # Store PPO hyperparameters as a serializable dataclass.
-class PPOConfig:  # Define the only three tunable PPO parameters.
+class PPOConfig:  # Define the tunable PPO parameters.
     learning_rate: float = 3e-4  # Default the learning rate to the requested baseline.
     ent_coef: float = 0.01  # Default the entropy coefficient to the requested baseline.
     clip_range: float = 0.2  # Default the clip range to the requested baseline.
+    n_steps: int = 128  # Default the rollout length to a small but stable value.
+    gamma: float = 0.99  # Default the discount factor to a standard PPO value.
 
-    def to_dict(self) -> dict[str, float]:  # Convert the config into a dictionary.
+    def to_dict(self) -> dict[str, float | int]:  # Convert the config into a dictionary.
         return asdict(self)  # Return the dataclass as a plain mapping.
 
 
@@ -27,12 +29,13 @@ class PPOConfig:  # Define the only three tunable PPO parameters.
 class TrainingArtifacts:  # Define the training artifact bundle.
     summary_inputs: dict  # Store inputs needed to build the compact summary.
     raw_metrics: dict  # Store extra metrics and artifact paths for inspection.
-    config: dict[str, float]  # Store the config actually used for this round.
+    config: dict[str, float | int]  # Store the config actually used for this round.
 
 
 def run_training(config: PPOConfig, train_steps: int = 5_000, eval_episodes: int = 10, seed: int = 0, artifact_dir: str | Path | None = None) -> TrainingArtifacts:  # Train PPO and collect evaluation metrics for one round.
     train_env = Monitor(MiniDefenseEnv(seed=seed))  # Build the training environment with monitoring.
-    model = PPO(policy="MlpPolicy", env=train_env, learning_rate=config.learning_rate, ent_coef=config.ent_coef, clip_range=config.clip_range, n_steps=128, batch_size=64, gamma=0.99, seed=seed, verbose=0)  # Create a small PPO learner suitable for the lightweight environment.
+    batch_size = 64 if config.n_steps % 64 == 0 else 32 if config.n_steps % 32 == 0 else min(32, config.n_steps)  # Use a batch size that divides the rollout length when possible to avoid truncated PPO mini-batches.
+    model = PPO(policy="MlpPolicy", env=train_env, learning_rate=config.learning_rate, ent_coef=config.ent_coef, clip_range=config.clip_range, n_steps=config.n_steps, batch_size=batch_size, gamma=config.gamma, seed=seed, verbose=0)  # Create a PPO learner using the tunable config values.
     model.learn(total_timesteps=train_steps, progress_bar=False)  # Train PPO for the requested number of timesteps.
     summary_inputs = _evaluate_model(model=model, eval_episodes=eval_episodes, base_seed=seed + 10_000)  # Run lightweight evaluation after training.
     saved_model_path = _save_model_if_requested(model=model, artifact_dir=artifact_dir)  # Persist the model when an artifact directory is provided.

@@ -27,7 +27,7 @@ def build_parser(default_config_path: str, default_group: str) -> argparse.Argum
 def resolve_settings(args: argparse.Namespace, default_group: str) -> dict:  # Merge CLI overrides with the config file and defaults.
     config = load_simple_yaml(args.config)  # Load the lightweight YAML-like config file.
     ppo_section = config.get("ppo", {})  # Read the nested PPO config section.
-    ppo_config = PPOConfig(learning_rate=float(ppo_section.get("learning_rate", 3e-4)), ent_coef=float(ppo_section.get("ent_coef", 0.01)), clip_range=float(ppo_section.get("clip_range", 0.2)))  # Build the structured PPO config from the file.
+    ppo_config = PPOConfig(learning_rate=float(ppo_section.get("learning_rate", 3e-4)), ent_coef=float(ppo_section.get("ent_coef", 0.01)), clip_range=float(ppo_section.get("clip_range", 0.2)), n_steps=int(ppo_section.get("n_steps", 128)), gamma=float(ppo_section.get("gamma", 0.99)))  # Build the structured PPO config from the file.
     experiment_group = str(config.get("experiment_group", default_group))  # Read the experiment group or use the default.
     return {  # Return the merged runtime settings as a plain dictionary.
         "experiment_group": experiment_group,  # Store the resolved experiment group.

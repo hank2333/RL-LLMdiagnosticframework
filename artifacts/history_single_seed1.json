@@ -1,0 +1,147 @@
+{
+  "records": [
+    {
+      "round_id": 1,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.015,
+        "clip_range": 0.2
+      },
+      "summary": {
+        "avg_return": 12.069,
+        "std_return": 0.7182,
+        "success_rate": 0.9,
+        "avg_episode_length": 40,
+        "reward_trend": "flat",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.1275,
+          "scan": 0.1525,
+          "isolate_host": 0.0125,
+          "patch": 0.6975,
+          "deploy_decoy": 0.005,
+          "do_nothing": 0.005
+        },
+        "dominant_action": "patch",
+        "action_collapse": true,
+        "alerts": [
+          "Dominant action exceeds 50% of selections.",
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {
+        "fault_type": "exploration_collapse",
+        "observed_symptoms": [
+          "Action distribution is concentrated.",
+          "Entropy trend is falling or flat."
+        ],
+        "reasoning": "The policy appears to rely on a narrow action set, especially the safer actions.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "increase_small",
+          "clip_range": "keep"
+        },
+        "confidence": 0.78,
+        "risk_level": "medium",
+        "rollback_trigger": "Rollback if average return decreases in the next accepted round."
+      },
+      "outcome": "accepted_neutral"
+    },
+    {
+      "round_id": 2,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.0225,
+        "clip_range": 0.2
+      },
+      "summary": {
+        "avg_return": 11.609,
+        "std_return": 1.603,
+        "success_rate": 1.0,
+        "avg_episode_length": 40,
+        "reward_trend": "flat",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.05,
+          "scan": 0.165,
+          "isolate_host": 0.015,
+          "patch": 0.7575,
+          "deploy_decoy": 0.0125,
+          "do_nothing": 0.0
+        },
+        "dominant_action": "patch",
+        "action_collapse": true,
+        "alerts": [
+          "Dominant action exceeds 50% of selections.",
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {
+        "fault_type": "exploration_collapse",
+        "observed_symptoms": [
+          "Action distribution is concentrated.",
+          "Entropy trend is falling or flat."
+        ],
+        "reasoning": "The policy appears to rely on a narrow action set, especially the safer actions.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "increase_small",
+          "clip_range": "keep"
+        },
+        "confidence": 0.78,
+        "risk_level": "medium",
+        "rollback_trigger": "Rollback if average return decreases in the next accepted round."
+      },
+      "outcome": "accepted_worsened"
+    },
+    {
+      "round_id": 3,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.03375,
+        "clip_range": 0.2
+      },
+      "summary": {
+        "avg_return": 11.211,
+        "std_return": 0.6415,
+        "success_rate": 1.0,
+        "avg_episode_length": 40,
+        "reward_trend": "declining",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.1175,
+          "scan": 0.26,
+          "isolate_host": 0.015,
+          "patch": 0.5825,
+          "deploy_decoy": 0.0225,
+          "do_nothing": 0.0025
+        },
+        "dominant_action": "patch",
+        "action_collapse": true,
+        "alerts": [
+          "Dominant action exceeds 50% of selections."
+        ]
+      },
+      "diagnosis": {
+        "fault_type": "exploration_collapse",
+        "observed_symptoms": [
+          "Action distribution is concentrated.",
+          "Entropy trend is falling or flat."
+        ],
+        "reasoning": "The policy appears to rely on a narrow action set, especially the safer actions.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "increase_small",
+          "clip_range": "keep"
+        },
+        "confidence": 0.78,
+        "risk_level": "medium",
+        "rollback_trigger": "Rollback if average return decreases in the next accepted round."
+      },
+      "outcome": "accepted_worsened"
+    }
+  ]
+}

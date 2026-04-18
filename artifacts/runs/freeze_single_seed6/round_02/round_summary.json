@@ -1,0 +1,73 @@
+{
+  "record": {
+    "round_id": 2,
+    "config": {
+      "learning_rate": 0.0003,
+      "ent_coef": 0.01,
+      "clip_range": 0.2,
+      "n_steps": 128,
+      "gamma": 0.99
+    },
+    "summary": {
+      "avg_return": 2.596,
+      "std_return": 0.5212,
+      "success_rate": 0.8,
+      "avg_episode_length": 40,
+      "reward_trend": "improving",
+      "entropy_trend": "flat",
+      "policy_stability": "stable",
+      "action_distribution": {
+        "monitor": 0.1725,
+        "scan": 0.3875,
+        "isolate_host": 0.43,
+        "patch": 0.005,
+        "deploy_decoy": 0.0025,
+        "do_nothing": 0.0025
+      },
+      "dominant_action": "isolate_host",
+      "action_collapse": false,
+      "alerts": []
+    },
+    "diagnosis": {
+      "fault_type": "mixed_or_uncertain",
+      "observed_symptoms": [
+        "No dominant failure pattern was detected."
+      ],
+      "reasoning": "Signals are mixed, so the safest recommendation is to keep the current settings.",
+      "proposed_adjustments": {
+        "learning_rate": "keep",
+        "ent_coef": "keep",
+        "clip_range": "keep",
+        "n_steps": "keep",
+        "gamma": "keep"
+      },
+      "confidence": 0.5,
+      "risk_level": "low",
+      "rollback_trigger": "Rollback is not needed because no parameter changes were proposed."
+    },
+    "outcome": "accepted_improved"
+  },
+  "raw_metrics": {
+    "train_steps": 5000,
+    "eval_episodes": 10,
+    "seed": 7,
+    "model_path": "artifacts\\runs\\freeze_single_seed6\\round_02\\ppo_model"
+  },
+  "diagnosis": {
+    "fault_type": "mixed_or_uncertain",
+    "observed_symptoms": [
+      "No dominant failure pattern was detected."
+    ],
+    "reasoning": "Signals are mixed, so the safest recommendation is to keep the current settings.",
+    "proposed_adjustments": {
+      "learning_rate": "keep",
+      "ent_coef": "keep",
+      "clip_range": "keep",
+      "n_steps": "keep",
+      "gamma": "keep"
+    },
+    "confidence": 0.5,
+    "risk_level": "low",
+    "rollback_trigger": "Rollback is not needed because no parameter changes were proposed."
+  }
+}

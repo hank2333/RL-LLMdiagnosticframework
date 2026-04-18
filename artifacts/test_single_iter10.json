@@ -1,0 +1,157 @@
+{
+  "records": [
+    {
+      "round_id": 1,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.015,
+        "clip_range": 0.2,
+        "n_steps": 128,
+        "gamma": 0.99
+      },
+      "summary": {
+        "avg_return": -0.095,
+        "std_return": 0.3167,
+        "success_rate": 0.0,
+        "avg_episode_length": 12,
+        "reward_trend": "declining",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.2708,
+          "scan": 0.125,
+          "isolate_host": 0.0417,
+          "patch": 0.1042,
+          "deploy_decoy": 0.3125,
+          "do_nothing": 0.1458
+        },
+        "dominant_action": "deploy_decoy",
+        "action_collapse": false,
+        "alerts": [
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {
+        "fault_type": "exploration_collapse",
+        "observed_symptoms": [
+          "No dominant failure pattern was detected.",
+          "Success rate is very low while entropy is not recovering."
+        ],
+        "reasoning": "Current results are too weak to justify a no-op, so the diagnosis shifts toward insufficient exploration.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "increase_small",
+          "clip_range": "keep",
+          "n_steps": "keep",
+          "gamma": "keep"
+        },
+        "confidence": 0.74,
+        "risk_level": "medium",
+        "rollback_trigger": "Rollback if the next accepted round still has no success improvement."
+      },
+      "outcome": "accepted_neutral"
+    },
+    {
+      "round_id": 2,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.0225,
+        "clip_range": 0.2,
+        "n_steps": 128,
+        "gamma": 0.99
+      },
+      "summary": {
+        "avg_return": 0.09,
+        "std_return": 0.688,
+        "success_rate": 0.0,
+        "avg_episode_length": 12.25,
+        "reward_trend": "improving",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.3878,
+          "scan": 0.1429,
+          "isolate_host": 0.102,
+          "patch": 0.0204,
+          "deploy_decoy": 0.2653,
+          "do_nothing": 0.0816
+        },
+        "dominant_action": "monitor",
+        "action_collapse": false,
+        "alerts": [
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {
+        "fault_type": "exploration_collapse",
+        "observed_symptoms": [
+          "No dominant failure pattern was detected.",
+          "Success rate is very low while entropy is not recovering."
+        ],
+        "reasoning": "Current results are too weak to justify a no-op, so the diagnosis shifts toward insufficient exploration.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "increase_small",
+          "clip_range": "keep",
+          "n_steps": "keep",
+          "gamma": "keep"
+        },
+        "confidence": 0.74,
+        "risk_level": "medium",
+        "rollback_trigger": "Rollback if the next accepted round still has no success improvement."
+      },
+      "outcome": "accepted_improved"
+    },
+    {
+      "round_id": 3,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.03375,
+        "clip_range": 0.2,
+        "n_steps": 128,
+        "gamma": 0.99
+      },
+      "summary": {
+        "avg_return": 0.245,
+        "std_return": 0.4702,
+        "success_rate": 0.0,
+        "avg_episode_length": 11.5,
+        "reward_trend": "declining",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.2609,
+          "scan": 0.3043,
+          "isolate_host": 0.0435,
+          "patch": 0.0652,
+          "deploy_decoy": 0.2174,
+          "do_nothing": 0.1087
+        },
+        "dominant_action": "scan",
+        "action_collapse": false,
+        "alerts": [
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {
+        "fault_type": "exploration_collapse",
+        "observed_symptoms": [
+          "No dominant failure pattern was detected.",
+          "Success rate is very low while entropy is not recovering."
+        ],
+        "reasoning": "Current results are too weak to justify a no-op, so the diagnosis shifts toward insufficient exploration.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "increase_small",
+          "clip_range": "keep",
+          "n_steps": "keep",
+          "gamma": "keep"
+        },
+        "confidence": 0.74,
+        "risk_level": "medium",
+        "rollback_trigger": "Rollback if the next accepted round still has no success improvement."
+      },
+      "outcome": "accepted_improved"
+    }
+  ]
+}

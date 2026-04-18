@@ -1,0 +1,108 @@
+{
+  "records": [
+    {
+      "round_id": 1,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.01,
+        "clip_range": 0.2,
+        "n_steps": 128,
+        "gamma": 0.99
+      },
+      "summary": {
+        "avg_return": 0.945,
+        "std_return": 0.2491,
+        "success_rate": 0.0,
+        "avg_episode_length": 14,
+        "reward_trend": "declining",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.3214,
+          "scan": 0.4821,
+          "isolate_host": 0.0179,
+          "patch": 0.0893,
+          "deploy_decoy": 0.0179,
+          "do_nothing": 0.0714
+        },
+        "dominant_action": "scan",
+        "action_collapse": true,
+        "alerts": [
+          "Monitor/scan usage exceeds 70% of actions.",
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {},
+      "outcome": "accepted_neutral"
+    },
+    {
+      "round_id": 2,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.01,
+        "clip_range": 0.2,
+        "n_steps": 128,
+        "gamma": 0.99
+      },
+      "summary": {
+        "avg_return": 1.185,
+        "std_return": 0.6036,
+        "success_rate": 0.0,
+        "avg_episode_length": 14.5,
+        "reward_trend": "improving",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.3276,
+          "scan": 0.3448,
+          "isolate_host": 0.1034,
+          "patch": 0.0172,
+          "deploy_decoy": 0.1379,
+          "do_nothing": 0.069
+        },
+        "dominant_action": "scan",
+        "action_collapse": false,
+        "alerts": [
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {},
+      "outcome": "accepted_improved"
+    },
+    {
+      "round_id": 3,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.01,
+        "clip_range": 0.2,
+        "n_steps": 128,
+        "gamma": 0.99
+      },
+      "summary": {
+        "avg_return": 1.265,
+        "std_return": 0.3087,
+        "success_rate": 0.0,
+        "avg_episode_length": 12.75,
+        "reward_trend": "declining",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.4314,
+          "scan": 0.3725,
+          "isolate_host": 0.098,
+          "patch": 0.0196,
+          "deploy_decoy": 0.0588,
+          "do_nothing": 0.0196
+        },
+        "dominant_action": "monitor",
+        "action_collapse": true,
+        "alerts": [
+          "Monitor/scan usage exceeds 70% of actions.",
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {},
+      "outcome": "accepted_neutral"
+    }
+  ]
+}

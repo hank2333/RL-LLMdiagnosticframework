@@ -1,0 +1,160 @@
+{
+  "records": [
+    {
+      "round_id": 1,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.015,
+        "clip_range": 0.2,
+        "n_steps": 128,
+        "gamma": 0.99
+      },
+      "summary": {
+        "avg_return": 0.74,
+        "std_return": 0.349,
+        "success_rate": 0.0,
+        "avg_episode_length": 13.5,
+        "reward_trend": "improving",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.3704,
+          "scan": 0.2037,
+          "isolate_host": 0.1296,
+          "patch": 0.0741,
+          "deploy_decoy": 0.1667,
+          "do_nothing": 0.0556
+        },
+        "dominant_action": "monitor",
+        "action_collapse": false,
+        "alerts": [
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {
+        "fault_type": "exploration_collapse",
+        "observed_symptoms": [
+          "No dominant failure pattern was detected.",
+          "Success rate is very low while entropy is not recovering."
+        ],
+        "reasoning": "Current results are too weak to justify a no-op, so the diagnosis shifts toward insufficient exploration.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "increase_small",
+          "clip_range": "keep",
+          "n_steps": "keep",
+          "gamma": "keep"
+        },
+        "confidence": 0.74,
+        "risk_level": "medium",
+        "rollback_trigger": "Rollback if the next accepted round still has no success improvement."
+      },
+      "outcome": "accepted_neutral"
+    },
+    {
+      "round_id": 2,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.015,
+        "clip_range": 0.2,
+        "n_steps": 160,
+        "gamma": 0.98
+      },
+      "summary": {
+        "avg_return": 1.04,
+        "std_return": 0.1225,
+        "success_rate": 0.0,
+        "avg_episode_length": 11.5,
+        "reward_trend": "improving",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.4348,
+          "scan": 0.3043,
+          "isolate_host": 0.0652,
+          "patch": 0.0435,
+          "deploy_decoy": 0.1087,
+          "do_nothing": 0.0435
+        },
+        "dominant_action": "monitor",
+        "action_collapse": true,
+        "alerts": [
+          "Monitor/scan usage exceeds 70% of actions.",
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {
+        "fault_type": "exploration_collapse",
+        "observed_symptoms": [
+          "Action distribution is concentrated.",
+          "Entropy trend is falling or flat.",
+          "Recent history shows ineffective entropy-only adjustment."
+        ],
+        "reasoning": "The policy appears to rely on a narrow action set, especially the dominant action. Recent history shows that a prior entropy increase did not rescue performance, so the strategy now changes rollout structure instead of repeating the same step.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "keep",
+          "clip_range": "keep",
+          "n_steps": "increase_small",
+          "gamma": "decrease_small"
+        },
+        "confidence": 0.82,
+        "risk_level": "medium",
+        "rollback_trigger": "Rollback if success rate and average return both fail to improve in the next round."
+      },
+      "outcome": "accepted_improved"
+    },
+    {
+      "round_id": 3,
+      "config": {
+        "learning_rate": 0.0003,
+        "ent_coef": 0.0225,
+        "clip_range": 0.2,
+        "n_steps": 160,
+        "gamma": 0.98
+      },
+      "summary": {
+        "avg_return": 0.625,
+        "std_return": 0.3743,
+        "success_rate": 0.0,
+        "avg_episode_length": 14,
+        "reward_trend": "improving",
+        "entropy_trend": "falling",
+        "policy_stability": "stable",
+        "action_distribution": {
+          "monitor": 0.25,
+          "scan": 0.4821,
+          "isolate_host": 0.0179,
+          "patch": 0.0893,
+          "deploy_decoy": 0.1071,
+          "do_nothing": 0.0536
+        },
+        "dominant_action": "scan",
+        "action_collapse": true,
+        "alerts": [
+          "Monitor/scan usage exceeds 70% of actions.",
+          "Entropy declined materially during training."
+        ]
+      },
+      "diagnosis": {
+        "fault_type": "exploration_collapse",
+        "observed_symptoms": [
+          "Action distribution is concentrated.",
+          "Entropy trend is falling or flat."
+        ],
+        "reasoning": "The policy appears to rely on a narrow action set, especially the dominant action.",
+        "proposed_adjustments": {
+          "learning_rate": "keep",
+          "ent_coef": "increase_small",
+          "clip_range": "keep",
+          "n_steps": "keep",
+          "gamma": "keep"
+        },
+        "confidence": 0.78,
+        "risk_level": "medium",
+        "rollback_trigger": "Rollback if average return decreases in the next accepted round."
+      },
+      "outcome": "accepted_worsened"
+    }
+  ]
+}

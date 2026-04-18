@@ -1,0 +1,72 @@
+{
+  "record": {
+    "round_id": 3,
+    "config": {
+      "learning_rate": 0.0003,
+      "ent_coef": 0.03375,
+      "clip_range": 0.2
+    },
+    "summary": {
+      "avg_return": 11.599,
+      "std_return": 1.2398,
+      "success_rate": 0.9,
+      "avg_episode_length": 40,
+      "reward_trend": "improving",
+      "entropy_trend": "falling",
+      "policy_stability": "stable",
+      "action_distribution": {
+        "monitor": 0.1425,
+        "scan": 0.11,
+        "isolate_host": 0.0175,
+        "patch": 0.7075,
+        "deploy_decoy": 0.02,
+        "do_nothing": 0.0025
+      },
+      "dominant_action": "patch",
+      "action_collapse": true,
+      "alerts": [
+        "Dominant action exceeds 50% of selections.",
+        "Entropy declined materially during training."
+      ]
+    },
+    "diagnosis": {
+      "fault_type": "exploration_collapse",
+      "observed_symptoms": [
+        "Action distribution is concentrated.",
+        "Entropy trend is falling or flat."
+      ],
+      "reasoning": "The policy appears to rely on a narrow action set, especially the safer actions.",
+      "proposed_adjustments": {
+        "learning_rate": "keep",
+        "ent_coef": "increase_small",
+        "clip_range": "keep"
+      },
+      "confidence": 0.78,
+      "risk_level": "medium",
+      "rollback_trigger": "Rollback if average return decreases in the next accepted round."
+    },
+    "outcome": "accepted_worsened"
+  },
+  "raw_metrics": {
+    "train_steps": 5000,
+    "eval_episodes": 10,
+    "seed": 2,
+    "model_path": "artifacts\\runs\\history_seed0\\round_03\\ppo_model"
+  },
+  "diagnosis": {
+    "fault_type": "exploration_collapse",
+    "observed_symptoms": [
+      "Action distribution is concentrated.",
+      "Entropy trend is falling or flat."
+    ],
+    "reasoning": "The policy appears to rely on a narrow action set, especially the safer actions.",
+    "proposed_adjustments": {
+      "learning_rate": "keep",
+      "ent_coef": "increase_small",
+      "clip_range": "keep"
+    },
+    "confidence": 0.78,
+    "risk_level": "medium",
+    "rollback_trigger": "Rollback if average return decreases in the next accepted round."
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "record": {
+    "round_id": 1,
+    "config": {
+      "learning_rate": 0.0003,
+      "ent_coef": 0.015,
+      "clip_range": 0.2,
+      "n_steps": 128,
+      "gamma": 0.99
+    },
+    "summary": {
+      "avg_return": 0.425,
+      "std_return": 0.5226,
+      "success_rate": 0.0,
+      "avg_episode_length": 11.25,
+      "reward_trend": "improving",
+      "entropy_trend": "falling",
+      "policy_stability": "stable",
+      "action_distribution": {
+        "monitor": 0.4222,
+        "scan": 0.2444,
+        "isolate_host": 0.0889,
+        "patch": 0.0,
+        "deploy_decoy": 0.1556,
+        "do_nothing": 0.0889
+      },
+      "dominant_action": "monitor",
+      "action_collapse": false,
+      "alerts": [
+        "Entropy declined materially during training."
+      ]
+    },
+    "diagnosis": {
+      "fault_type": "exploration_collapse",
+      "observed_symptoms": [
+        "No dominant failure pattern was detected.",
+        "Success rate is very low while entropy is not recovering."
+      ],
+      "reasoning": "Current results are too weak to justify a no-op, so the diagnosis shifts toward insufficient exploration.",
+      "proposed_adjustments": {
+        "learning_rate": "keep",
+        "ent_coef": "increase_small",
+        "clip_range": "keep",
+        "n_steps": "keep",
+        "gamma": "keep"
+      },
+      "confidence": 0.74,
+      "risk_level": "medium",
+      "rollback_trigger": "Rollback if the next accepted round still has no success improvement."
+    },
+    "outcome": "accepted_neutral"
+  },
+  "raw_metrics": {
+    "train_steps": 768,
+    "eval_episodes": 4,
+    "seed": 4,
+    "model_path": "artifacts\\runs\\test_single_iter8\\round_01\\ppo_model"
+  },
+  "diagnosis": {
+    "fault_type": "exploration_collapse",
+    "observed_symptoms": [
+      "No dominant failure pattern was detected.",
+      "Success rate is very low while entropy is not recovering."
+    ],
+    "reasoning": "Current results are too weak to justify a no-op, so the diagnosis shifts toward insufficient exploration.",
+    "proposed_adjustments": {
+      "learning_rate": "keep",
+      "ent_coef": "increase_small",
+      "clip_range": "keep",
+      "n_steps": "keep",
+      "gamma": "keep"
+    },
+    "confidence": 0.74,
+    "risk_level": "medium",
+    "rollback_trigger": "Rollback if the next accepted round still has no success improvement."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "record": {
+    "round_id": 3,
+    "config": {
+      "learning_rate": 0.0003,
+      "ent_coef": 0.01,
+      "clip_range": 0.2
+    },
+    "summary": {
+      "avg_return": 10.36,
+      "std_return": 2.1016,
+      "success_rate": 1.0,
+      "avg_episode_length": 40,
+      "reward_trend": "flat",
+      "entropy_trend": "falling",
+      "policy_stability": "stable",
+      "action_distribution": {
+        "monitor": 0.085,
+        "scan": 0.11,
+        "isolate_host": 0.0,
+        "patch": 0.78,
+        "deploy_decoy": 0.0125,
+        "do_nothing": 0.0125
+      },
+      "dominant_action": "patch",
+      "action_collapse": true,
+      "alerts": [
+        "Dominant action exceeds 50% of selections.",
+        "Entropy declined materially during training."
+      ]
+    },
+    "diagnosis": {},
+    "outcome": "accepted_worsened"
+  },
+  "raw_metrics": {
+    "train_steps": 5000,
+    "eval_episodes": 10,
+    "seed": 4,
+    "model_path": "artifacts\\runs\\fixed_seed2\\round_03\\ppo_model"
+  },
+  "diagnosis": {}
+}

@@ -11,7 +11,7 @@ ACTION_NAMES = (  # Define the fixed discrete action names required by the proje
     "monitor",  # Safe information-gathering action that can become overused.
     "scan",  # Another safe action that slightly reduces threat and can also collapse.
     "isolate_host",  # Stronger defensive action with situational payoff.
-    "patch",  # Maintenance action that is best after enough visibility is gathered.
+    "patch",  # Maintenance action that should help only in the right context.
     "deploy_decoy",  # Defensive deception action that counters higher attack pressure.
     "do_nothing",  # Explicit bad action kept for policy expressiveness.
 )  # End the action-name tuple.
@@ -53,9 +53,9 @@ class MiniDefenseEnv(gym.Env[np.ndarray, int]):  # Implement the lightweight cus
         self._step_count = 0  # Start the episode at step zero.
         self._last_action = ACTION_NAMES.index("do_nothing")  # Reset the previous-action tracker.
         self._repeat_count = 0  # Reset the repeated-action counter.
-        self._threat_level = float(self._rng.uniform(0.2, 0.45))  # Sample a moderate initial threat.
+        self._threat_level = float(self._rng.uniform(0.25, 0.5))  # Sample a slightly wider initial threat range.
         self._host_health = 1.0  # Restore full host health at episode start.
-        self._visibility = float(self._rng.uniform(0.1, 0.3))  # Sample modest initial visibility.
+        self._visibility = float(self._rng.uniform(0.08, 0.24))  # Start with lower average visibility so information actions matter more.
         self._decoy_level = 0.0  # Reset decoy protection.
         self._patch_level = 0.0  # Reset patch protection.
         self._episode_reward = 0.0  # Reset cumulative reward tracking.
@@ -71,7 +71,7 @@ class MiniDefenseEnv(gym.Env[np.ndarray, int]):  # Implement the lightweight cus
         self._episode_reward += reward  # Accumulate reward for end-of-episode success logic.
         terminated = self._host_health <= 0.05  # End early if the host is effectively lost.
         truncated = self._step_count >= self.max_steps  # Truncate when the fixed episode horizon is reached.
-        is_success = bool((terminated is False) and (self._host_health >= 0.45) and (self._episode_reward >= 0.0))  # Label successful survival with non-negative reward.
+        is_success = bool((terminated is False) and (self._host_health >= 0.45) and (self._episode_reward >= 1.0))  # Require positive cumulative value for success so poor policies are easier to distinguish.
         info = {"action_name": ACTION_NAMES[action], "threat_level": round(self._threat_level, 4), "host_health": round(self._host_health, 4), "is_success": is_success if (terminated or truncated) else False}  # Build the step info dictionary.
         return self._get_obs(), float(reward), terminated, truncated, info  # Return the standard Gym step tuple.
 
@@ -83,44 +83,51 @@ class MiniDefenseEnv(gym.Env[np.ndarray, int]):  # Implement the lightweight cus
             self._last_action = action  # Store the new action as the previous action.
 
     def _sample_attack_pressure(self) -> float:  # Sample attack pressure from the current latent threat state.
-        base = self._threat_level + self._rng.uniform(-0.05, 0.08)  # Add small random variation around the threat level.
+        base = self._threat_level + self._rng.uniform(-0.06, 0.1)  # Add small random variation around the threat level.
         return float(np.clip(base, 0.0, 1.0))  # Clip the pressure to the normalized range.
 
     def _apply_action(self, action: int, attack_pressure: float) -> float:  # Translate the chosen action into reward and state changes.
         reward = 0.0  # Start from zero immediate reward each step.
         if action == 0:  # Handle the monitor action.
             self._visibility = min(1.0, self._visibility + 0.12)  # Monitoring improves future visibility.
-            reward += 0.22 - 0.08 * max(0, self._repeat_count - 2)  # Repetition slowly erodes the safety-action reward.
+            reward += 0.16 - 0.06 * max(0, self._repeat_count - 2)  # Repeat use erodes monitor value while keeping it somewhat useful.
         elif action == 1:  # Handle the scan action.
-            self._visibility = min(1.0, self._visibility + 0.18)  # Scanning improves visibility more strongly.
-            self._threat_level = max(0.0, self._threat_level - 0.03)  # Scanning slightly reduces uncertainty-driven threat.
-            reward += 0.18 - 0.08 * max(0, self._repeat_count - 2)  # Repetition also erodes scan reward.
+            self._visibility = min(1.0, self._visibility + 0.16)  # Scanning improves visibility more strongly.
+            self._threat_level = max(0.0, self._threat_level - 0.05)  # Scanning slightly reduces uncertainty-driven threat.
+            reward += 0.14 - 0.06 * max(0, self._repeat_count - 2)  # Repeat use also erodes scan value.
         elif action == 2:  # Handle the isolate_host action.
-            threat_penalty = 0.25 if attack_pressure < 0.35 else 0.05  # Isolation is wasteful when pressure is low.
-            self._threat_level = max(0.0, self._threat_level - 0.14)  # Isolation meaningfully reduces immediate threat.
-            reward += 0.35 - threat_penalty  # Reward depends on whether isolation was timely.
+            timely_bonus = 0.42 if attack_pressure > 0.55 else 0.08  # Isolation should be rewarded only when pressure is meaningfully high.
+            self._threat_level = max(0.0, self._threat_level - 0.16)  # Isolation meaningfully reduces immediate threat.
+            reward += timely_bonus - 0.1  # Add a moderate action cost so isolation is not universally dominant.
         elif action == 3:  # Handle the patch action.
-            patch_bonus = 0.45 if self._visibility > 0.35 else 0.05  # Patching pays off only when informed enough.
-            self._patch_level = min(1.0, self._patch_level + 0.2)  # Patching builds durable mitigation.
-            self._threat_level = max(0.0, self._threat_level - 0.12)  # Patching also lowers current threat.
-            reward += patch_bonus - 0.08  # Apply a small action cost to patching.
+            patch_ready = self._visibility > 0.55 and attack_pressure > 0.48  # Require both visibility and pressure for patch to be strongly useful.
+            patch_bonus = 0.28 if patch_ready else -0.02  # Make poorly timed patching slightly harmful instead of nearly free.
+            self._patch_level = min(1.0, self._patch_level + 0.12)  # Build patch mitigation more slowly than before.
+            self._threat_level = max(0.0, self._threat_level - 0.07)  # Let patching reduce current threat, but less aggressively.
+            reward += patch_bonus - 0.12  # Increase patch cost so repeated patching is not an easy local optimum.
         elif action == 4:  # Handle the deploy_decoy action.
-            self._decoy_level = min(1.0, self._decoy_level + 0.25)  # Decoy deployment raises decoy protection.
-            reward += 0.24 if attack_pressure > 0.45 else 0.06  # Decoys are more useful when pressure is high.
+            decoy_ready = attack_pressure > 0.52 and self._visibility < 0.45  # Make decoys strongest when pressure is high but visibility is still limited.
+            decoy_bonus = 0.2 if decoy_ready else -0.04  # Make poorly timed decoys slightly harmful instead of broadly safe.
+            self._decoy_level = min(1.0, self._decoy_level + 0.16)  # Build decoy protection more slowly than before.
+            reward += decoy_bonus - 0.08 * max(0, self._repeat_count - 1)  # Add a repeat-use cost so repeated decoying is not a low-risk default.
         else:  # Handle the do_nothing action.
-            reward -= 0.18  # Doing nothing is intentionally bad.
+            reward -= 0.2  # Doing nothing is intentionally bad.
         if self._repeat_count >= 4 and action in (0, 1):  # Add an extra collapse penalty to repeated safe actions.
-            reward -= 0.18  # This makes monitor/scan overuse attractive early but harmful long term.
+            reward -= 0.18  # This makes monitor/scan overuse harmful long term.
+        if self._repeat_count >= 3 and action == 3:  # Add a dedicated patch-collapse penalty so repeated patching can also be diagnosed.
+            reward -= 0.12  # This limits the previous tendency to collapse into patch.
+        if self._repeat_count >= 3 and action == 4:  # Add a dedicated decoy-collapse penalty so repeated decoying is also discouraged.
+            reward -= 0.12  # This prevents the environment from simply shifting collapse from patch to decoy.
         return reward  # Return the immediate reward after the action effect.
 
     def _apply_dynamics(self, attack_pressure: float) -> None:  # Advance the latent environment dynamics after the action.
-        mitigation = 0.16 * self._patch_level + 0.12 * self._decoy_level + 0.08 * self._visibility  # Combine defensive factors into mitigation.
+        mitigation = 0.07 * self._visibility + 0.11 * self._decoy_level + 0.09 * self._patch_level  # Combine defensive factors into mitigation with weaker decoy influence than the previous iteration.
         net_pressure = max(0.0, attack_pressure - mitigation)  # Compute the remaining effective attack pressure.
-        self._host_health = float(np.clip(self._host_health - net_pressure * 0.18, 0.0, 1.0))  # Damage the host based on net pressure.
-        self._threat_level = float(np.clip(self._threat_level + self._rng.uniform(0.01, 0.06), 0.0, 1.0))  # Let threat naturally creep back up.
+        self._host_health = float(np.clip(self._host_health - net_pressure * 0.2, 0.0, 1.0))  # Damage the host based on net pressure.
+        self._threat_level = float(np.clip(self._threat_level + self._rng.uniform(0.02, 0.07), 0.0, 1.0))  # Let threat naturally creep back up.
         self._visibility = float(np.clip(self._visibility * 0.97, 0.0, 1.0))  # Let visibility decay slightly over time.
-        self._decoy_level = float(np.clip(self._decoy_level * 0.94, 0.0, 1.0))  # Let decoy effectiveness decay over time.
-        self._patch_level = float(np.clip(self._patch_level * 0.995, 0.0, 1.0))  # Let patch effectiveness decay very slowly.
+        self._decoy_level = float(np.clip(self._decoy_level * 0.9, 0.0, 1.0))  # Let decoy effectiveness decay faster so repeated decoying is less sticky.
+        self._patch_level = float(np.clip(self._patch_level * 0.96, 0.0, 1.0))  # Let patch effectiveness decay faster so repeated patching is less sticky.
 
     def _get_obs(self) -> np.ndarray:  # Build the current observation vector.
         snapshot = EnvSnapshot(threat_level=self._threat_level, host_health=self._host_health, visibility=self._visibility, decoy_level=self._decoy_level, patch_level=self._patch_level, steps_remaining_ratio=1.0 - (self._step_count / self.max_steps))  # Gather the normalized state into a named structure.

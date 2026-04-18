@@ -1,0 +1,259 @@
+RL-LLM Diagnostic Framework Modification Log
+
+[2026-04-11] Iteration 0 - Task Start
+- Goal: expand PPO tuning space with `n_steps` and `gamma`, rebalance `MiniDefenseEnv`, and iterate until `single_shot` and `history_aware` show a measurable difference.
+- Constraint: keep changes minimal, record each code modification and each experiment result in this file.
+
+[2026-04-11] Iteration 1 - Parameter Space Expansion
+- Modified `src/core/train_runner.py`
+  - Added PPO tunables `n_steps` and `gamma` to `PPOConfig`.
+  - Added ranges: `n_steps in [64, 256]`, `gamma in [0.95, 0.999]`.
+  - Replaced fixed PPO constructor values with `config.n_steps` and `config.gamma`.
+  - Kept `batch_size = min(64, n_steps)` to avoid invalid PPO combinations.
+- Modified `src/core/action_mapper.py`
+  - Added symbolic mapping for `n_steps`: `increase_small => +32`, `decrease_small => -32`.
+  - Added symbolic mapping for `gamma`: `increase_small => +0.01`, `decrease_small => -0.01`.
+- Modified `src/core/guardrail.py`
+  - Allowed `n_steps` and `gamma` to pass validation and clipping.
+  - Preserved integer normalization for `n_steps`.
+- Modified `src/core/diagnosis_types.py`
+  - Widened stored config type from float-only to `float | int`.
+- Modified `src/experiments/common.py`
+  - Loaded `n_steps` and `gamma` from config files into `PPOConfig`.
+- Modified `configs/fixed.yaml`
+  - Added defaults: `n_steps: 128`, `gamma: 0.99`.
+- Modified `configs/single_shot.yaml`
+  - Added defaults: `n_steps: 128`, `gamma: 0.99`.
+- Modified `configs/history_aware.yaml`
+  - Added defaults: `n_steps: 128`, `gamma: 0.99`.
+
+[2026-04-11] Iteration 2 - Environment Rebalance and History-Aware Branching
+- Modified `src/envs/mini_defense_env.py`
+  - Changed initial state sampling:
+    - `threat_level` from `[0.20, 0.45]` to `[0.25, 0.50]`.
+    - `visibility` from `[0.10, 0.30]` to `[0.08, 0.24]`.
+  - Changed success threshold:
+    - Required cumulative episode reward from `>= 0.0` to `>= 1.0`.
+  - Changed `monitor` reward:
+    - Base reward from `0.22` to `0.16`.
+    - Repeat erosion from `0.08` to `0.06`.
+  - Changed `scan` reward and effect:
+    - Base reward from `0.18` to `0.14`.
+    - Threat reduction from `0.03` to `0.05`.
+    - Repeat erosion from `0.08` to `0.06`.
+  - Changed `isolate_host` reward:
+    - High-pressure bonus now `0.42` when `attack_pressure > 0.55`.
+    - Low-pressure value now `0.08`.
+    - Added action cost `-0.10`.
+  - Changed `patch` reward and effect:
+    - Strong reward now only when `visibility > 0.55` and `attack_pressure > 0.48`.
+    - `patch_bonus` changed from `0.45 / 0.05` to `0.28 / -0.02`.
+    - Cost changed from `-0.08` to `-0.12`.
+    - `patch_level` gain changed from `+0.20` to `+0.12`.
+    - Threat reduction changed from `0.12` to `0.07`.
+    - Added patch repetition penalty: if repeating patch 3 or more times, extra `-0.12`.
+  - Changed `deploy_decoy` reward:
+    - High-pressure reward from `0.24` to `0.30`.
+    - Low-pressure reward from `0.06` to `0.12`.
+    - `decoy_level` gain changed from `+0.25` to `+0.22`.
+  - Changed `do_nothing` penalty from `-0.18` to `-0.20`.
+  - Changed dynamics:
+    - Mitigation weights from `patch 0.16 / decoy 0.12 / visibility 0.08` to `patch 0.09 / decoy 0.16 / visibility 0.07`.
+    - Host damage factor from `0.18` to `0.20`.
+    - Threat creep from `[0.01, 0.06]` to `[0.02, 0.07]`.
+    - `decoy_level` decay from `0.94` to `0.97`.
+    - `patch_level` decay from `0.995` to `0.96`.
+- Modified `src/core/llm_client.py`
+  - Expanded allowed adjustable parameter keys to include `n_steps` and `gamma`.
+  - Expanded fallback diagnoses so every diagnosis now returns all 5 tunable keys.
+  - Added history-aware correction policy:
+    - If the last 2 history records and the current round all show collapse,
+    - and the last 2 diagnoses both pushed `ent_coef = increase_small`,
+    - and the last 2 outcomes were not `accepted_improved`,
+    - and the dominant action stayed the same,
+    - then `history_aware` stops repeating the same entropy advice and instead proposes:
+      - `n_steps = increase_small`
+      - `gamma = decrease_small`
+      - keep the other 3 parameters unchanged.
+  - Added prompt guidance telling the model not to repeat ineffective history-aware advice.
+
+[2026-04-11] Iteration 3 - Earlier History Branch Activation
+- Modified `src/core/llm_client.py`
+  - Added summary-level override:
+    - If `success_rate <= 0.25`, `avg_return <= 3.0`, and `entropy_trend in {falling, flat}`,
+    - then a passive `mixed_or_uncertain` diagnosis is upgraded to `exploration_collapse`,
+    - with adjustment `ent_coef = increase_small`.
+  - Relaxed history-aware trigger from needing 2 prior records to needing 1 prior record.
+  - New history-aware trigger conditions:
+    - previous round was not `accepted_improved`,
+    - previous diagnosis already used `ent_coef = increase_small`,
+    - current diagnosis again wants `ent_coef = increase_small`,
+    - previous and current entropy trends both remain `falling` or `flat`,
+    - current success rate still `<= 0.25`.
+  - When the trigger fires, `history_aware` now switches to:
+    - `n_steps = increase_small`
+    - `gamma = decrease_small`
+    - keep the other 3 parameters unchanged.
+- Reason for the change:
+  - In Iteration 2 smoke tests, both `single_shot` and `history_aware` stayed at `mixed_or_uncertain` and produced no parameter updates, so no group difference could emerge.
+
+[2026-04-11] Iteration 4 - Smoke-Test Success and Minor Training Fix
+- Smoke-test command results with `rounds=3`, `train_steps=768`, `eval_episodes=4`, `seed=1`:
+  - `single_shot`
+    - Round 1 config moved to `ent_coef=0.015`.
+    - Round 2 config moved to `ent_coef=0.0225`.
+    - Round 3 config moved to `ent_coef=0.03375`.
+    - Round 3 `avg_return = 1.875`.
+  - `history_aware`
+    - Round 1 config moved to `ent_coef=0.015`.
+    - Round 2 switched strategy to `n_steps=160`, `gamma=0.98`, while keeping `ent_coef=0.015`.
+    - Round 3 config became `ent_coef=0.0225`, `n_steps=160`, `gamma=0.98`.
+    - Round 3 `avg_return = 2.43`.
+- Interpretation:
+  - The required group difference now exists.
+  - `history_aware` no longer blindly repeats the same entropy-only update.
+  - The difference appears early enough to be measurable within a 3-round run.
+- Modified `src/core/train_runner.py`
+  - Changed PPO `batch_size` selection from `min(64, n_steps)` to:
+    - `64` if divisible by 64,
+    - else `32` if divisible by 32,
+    - else `min(32, n_steps)`.
+  - Reason: prevent truncated mini-batch warnings when `history_aware` sets `n_steps=160`.
+
+[2026-04-11] Iteration 5 - Default-Budget Confirmation
+- Confirmation commands used default config budget with isolated outputs:
+  - `python -m src.experiments.run_fixed --seed 1 --history-path artifacts/confirm_fixed_seed1.json --artifact-dir artifacts/runs/confirm_fixed_seed1`
+  - `python -m src.experiments.run_single_shot --seed 1 --history-path artifacts/confirm_single_seed1.json --artifact-dir artifacts/runs/confirm_single_seed1 --ollama-timeout-sec 120`
+  - `python -m src.experiments.run_history_aware --seed 1 --history-path artifacts/confirm_history_seed1.json --artifact-dir artifacts/runs/confirm_history_seed1 --ollama-timeout-sec 120`
+- Default-budget experiment settings:
+  - `rounds = 3`
+  - `train_steps = 5000`
+  - `eval_episodes = 10`
+  - initial PPO config:
+    - `learning_rate = 0.0003`
+    - `ent_coef = 0.01`
+    - `clip_range = 0.2`
+    - `n_steps = 128`
+    - `gamma = 0.99`
+- Default-budget final results:
+  - `fixed`
+    - Round 3 config stayed at `learning_rate=0.0003`, `ent_coef=0.01`, `clip_range=0.2`, `n_steps=128`, `gamma=0.99`
+    - Round 3 `avg_return = 3.076`
+    - Round 3 `dominant_action = deploy_decoy`
+  - `single_shot`
+    - Round 3 config became `learning_rate=0.0003`, `ent_coef=0.03375`, `clip_range=0.2`, `n_steps=128`, `gamma=0.99`
+    - Round 3 `avg_return = 3.042`
+    - Round 3 `dominant_action = deploy_decoy`
+  - `history_aware`
+    - Round 2 diverged from `single_shot` by switching to `n_steps=160`, `gamma=0.98`
+    - Round 3 config became `learning_rate=0.0003`, `ent_coef=0.0225`, `clip_range=0.2`, `n_steps=160`, `gamma=0.98`
+    - Round 3 `avg_return = 3.092`
+    - Round 3 `dominant_action = deploy_decoy`
+- Interpretation:
+  - The required behavioral difference between `single_shot` and `history_aware` is confirmed at the default budget.
+  - `history_aware` is no longer following the same update path as `single_shot`.
+  - The environment no longer collapses to `patch`; the new dominant collapse mode is `deploy_decoy`.
+  - This is progress for diagnosis diversity, but the environment still needs more work before it can serve as a strong benchmark.
+
+[2026-04-11] Iteration 6 - Reduce Decoy Collapse
+- Modified `src/envs/mini_defense_env.py`
+  - Changed `deploy_decoy` reward and context:
+    - Previously high-pressure reward was broad and generally positive.
+    - Now decoys are strongly useful only when:
+      - `attack_pressure > 0.52`
+      - and `visibility < 0.45`
+    - `decoy_bonus` is now `0.20` when ready, otherwise `-0.04`.
+  - Changed decoy growth:
+    - `decoy_level` gain from `+0.22` in Iteration 2 to `+0.16`.
+  - Added repeat-use cost for decoy:
+    - Per-step reward now subtracts `0.08 * max(0, repeat_count - 1)`.
+  - Added explicit decoy collapse penalty:
+    - If repeating decoy 3 or more times, extra `-0.12`.
+  - Changed decoy mitigation weight:
+    - From `0.16` in Iteration 2 to `0.11`.
+  - Changed decoy decay:
+    - From `0.97` in Iteration 2 to `0.90`.
+- Reason for the change:
+  - After Iteration 5, the benchmark no longer collapsed to `patch`, but had shifted to a new dominant collapse mode centered on `deploy_decoy`.
+  - The goal of this iteration is to remove that trivial local optimum while preserving the `single_shot` vs `history_aware` divergence.
+
+[2026-04-11] Iteration 7 - Reduce Safe-Action Collapse and Reward Follow-Through
+- Modified `src/envs/mini_defense_env.py`
+  - Changed `monitor` reward:
+    - From `0.16 - 0.06 * repeat_penalty_term` to `0.12 - 0.08 * repeat_penalty_term`.
+  - Changed `scan` reward:
+    - From `0.14 - 0.06 * repeat_penalty_term` to `0.10 - 0.08 * repeat_penalty_term`.
+  - Changed `isolate_host` reward:
+    - High-pressure bonus from `0.42` to `0.50`.
+    - Pressure threshold from `attack_pressure > 0.55` to `attack_pressure > 0.50`.
+    - Low-pressure value from `0.08` to `0.04`.
+  - Changed `patch` context and reward:
+    - Ready threshold from `visibility > 0.55 and attack_pressure > 0.48` to `visibility > 0.45 and attack_pressure > 0.40`.
+    - `patch_bonus` from `0.28 / -0.02` to `0.34 / -0.08`.
+    - Net action cost changed from `-0.12` to `-0.10`.
+- Reason for the change:
+  - After Iteration 6, `deploy_decoy` dominance was reduced, but the policy still gravitated toward `monitor/scan`.
+  - The aim here is to make information-gathering actions more clearly preparatory and make timely follow-up actions (`isolate_host`, `patch`) more rewarding.
+
+[2026-04-11] Iteration 8 - Make Information Actions Context-Limited
+- Modified `src/envs/mini_defense_env.py`
+  - Changed `monitor` to be useful only when visibility is still low:
+    - if `visibility < 0.45`, base monitor reward is `0.14`
+    - otherwise base monitor reward is `-0.04`
+  - Changed `scan` to be useful only when visibility is still low:
+    - if `visibility < 0.50`, base scan reward is `0.16`
+    - otherwise base scan reward is `-0.02`
+- Reason for the change:
+  - Iteration 7 still showed `monitor/scan`-heavy policies.
+  - This change is meant to preserve their role as setup actions while making it less profitable to keep using them after enough information has already been collected.
+
+[2026-04-11] Iteration 9 - Fix Over-Proposing Diagnoses
+- Modified `src/core/llm_client.py`
+  - Fixed `training_instability` fallback diagnosis:
+    - Removed `clip_range = decrease_small`.
+    - Kept only:
+      - `learning_rate = decrease_small`
+      - `n_steps = increase_small`
+  - Fixed `overly_conservative_update` fallback diagnosis:
+    - Removed `clip_range = increase_small`.
+    - Kept only:
+      - `learning_rate = increase_small`
+      - `gamma = increase_small`
+- Reason for the change:
+  - Some fallback diagnoses were effectively proposing 3 parameter changes in one round.
+  - Guardrails only allow 2 changes for medium risk.
+  - That meant some results were being dominated by guardrail rejection instead of actual adaptive behavior.
+
+[2026-04-11] Iteration 10 - History-Aware Plateau Escape
+- Modified `src/core/llm_client.py`
+  - Added a second history-aware correction branch for low-success plateaus.
+  - Trigger conditions:
+    - at least 2 prior history records exist,
+    - previous 2 rounds and the current round all have `success_rate = 0.0`,
+    - previous 2 outcomes were `accepted_improved`,
+    - current `avg_return < 1.0`,
+    - previous diagnosis and current diagnosis both indicate `training_instability`.
+  - When triggered, `history_aware` switches away from repeated stabilization and proposes:
+    - `learning_rate = increase_small`
+    - `gamma = increase_small`
+    - keep the other 3 parameters unchanged.
+- Reason for the change:
+  - In Iteration 9, collapse was reduced, but both groups could still converge onto the same conservative `training_instability` adjustment path.
+  - This branch makes `history_aware` explicitly use historical evidence to escape a low-success plateau that `single_shot` cannot identify from the current round alone.
+
+[2026-04-11] Freeze Decision - Iteration 6 Style Environment
+- Decision:
+  - Freeze the environment around the Iteration 6 reward profile as the transition candidate for later CybORG migration.
+- Why this version was selected:
+  - Iteration 4/5 kept a clear `single_shot` vs `history_aware` difference, but still had too much `deploy_decoy` dominance.
+  - Iteration 8/9 reduced collapse more aggressively, but the group difference weakened or disappeared.
+  - Iteration 6 was the best compromise observed so far:
+    - it reduced the previous trivial `patch` collapse,
+    - preserved a clear and interpretable `history_aware` branch,
+    - and still produced a positive performance gap for `history_aware`.
+- Practical freeze choice:
+  - Reverted the environment-side reward profile from the later Iteration 7/8 adjustments back toward the Iteration 6 values.
+  - Kept later infrastructure fixes that are clearly beneficial:
+    - parameter-space expansion with `n_steps` and `gamma`,
+    - batch-size cleanup,
+    - guardrail-safe fallback diagnoses.

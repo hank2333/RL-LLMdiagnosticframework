@@ -51,7 +51,7 @@ class DiagnosisOutput:  # Define the diagnosis structure required by the project
 @dataclass  # Store the persisted history item as a serializable dataclass.
 class HistoryRecord:  # Define the JSON history record schema.
     round_id: int  # Store the loop round number.
-    config: dict[str, float]  # Store the PPO config used for the round.
+    config: dict[str, float | int]  # Store the PPO config used for the round.
     summary: dict  # Store the summary generated for the round.
     diagnosis: dict  # Store the diagnosis generated for the round.
     outcome: OutcomeLabel  # Store the coarse outcome label for the round.
